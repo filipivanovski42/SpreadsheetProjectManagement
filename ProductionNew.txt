@@ -1,0 +1,20 @@
+1. Each project should be its own spreadsheet. Within the spreadsheet, each sheet should represent a different sprint or workstream (like marketing or core development) that can happen in parallel. Within each sheet, there should be a dashboard, and a tasks list under it so that the first thing that people see when they open each sheet is the overall completion status.
+
+2. The dashboard should provide the total estimated time until project completion, the total actual time spent on the project so far. There should also be some progress bar that shows what is the overall progress (sparkline).
+
+3. There needs to be an apps script script which helps me to initialize a new sprint or parallel sheet. This should ask me about the people that are involved - whose names I input and they get added to the dropdown in that sheet for assignee. It should prompt me for the name of the sprint or workstream.
+
+4. There should also be a button that creates a new task, and it prompts me for the task details.
+
+5. We should also handle permissions wisely - people should only be able to tick the task as completed if it was assigned to them.
+
+6. I assume that we have to add people by their google accounts to this sheet so that we can work with the permissions.
+
+7. When I assign a task to someone there should be a popup that asks me if i want to send that user an email notification. I will be the only person adding tasks and sending notifications.
+
+8. There should be fields for how many hours are estimated for the task, and how many hours were actually spent on the task. assignees have to input hours spent before they can mark it as done.
+
+9. There should be a field for the deadline of the task, and when the date is overdue it should highlight this date in red text color.
+
+10. There should be a field for status which has not started, in progress, blocked, and done as options. If the task is blocked the entire row background color is red. if the task is done the entire row background color is green. if the task is in progress the entire row background color is yellow. if the task is not started the entire row background color is gray. Remember to use colors which form a plaesant color scheme, and are desaturated and easy on the eyes - some pastel pallette would be best.
+
