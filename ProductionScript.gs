@@ -143,16 +143,16 @@
     const me = Session.getEffectiveUser();
     applyAllProtectionsBatch(sheet, dataStartRow, numRows, me.getEmail());
 
-    // Flush all pending writes so the Sheets API resize sees final content
-    SpreadsheetApp.flush();
-
-    // Auto-fit columns via Sheets API batchUpdate (more reliable than SpreadsheetApp.autoResizeColumns)
+    // Set explicit column widths in one batch (autoResize API is unreliable for just-written content)
     const resizeSheetId = sheet.getSheetId();
-    const resizeRequests = [
-      { autoResizeDimensions: { dimensions: { sheetId: resizeSheetId, dimension: "COLUMNS", startIndex: 1, endIndex: 8 } } },
-      { updateDimensionProperties: { range: { sheetId: resizeSheetId, dimension: "COLUMNS", startIndex: 1, endIndex: 2 }, properties: { pixelSize: 350 }, fields: "pixelSize" } },
-      { updateDimensionProperties: { range: { sheetId: resizeSheetId, dimension: "COLUMNS", startIndex: 2, endIndex: 3 }, properties: { pixelSize: 200 }, fields: "pixelSize" } }
-    ];
+    const colWidths = [[0,1,21],[1,2,350],[2,3,200],[3,4,120],[4,5,120],[5,6,100],[6,7,110],[7,8,100]];
+    const resizeRequests = colWidths.map(([s, e, px]) => ({
+      updateDimensionProperties: {
+        range: { sheetId: resizeSheetId, dimension: "COLUMNS", startIndex: s, endIndex: e },
+        properties: { pixelSize: px },
+        fields: "pixelSize"
+      }
+    }));
     Sheets.Spreadsheets.batchUpdate({ requests: resizeRequests }, ss.getId());
 
     ss.toast("Spreadsheet is ready. Status buttons will appear as you assign tasks.", "✅ Initialization Done", 5);
