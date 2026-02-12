@@ -133,8 +133,8 @@
     // Hide all status dropdowns initially (Batch)
     sheet.getRange(dataStartRow, 4, numRows).setDataValidation(null);
 
-    // Deadline date picker (Batch) — enforces date input + shows date picker widget
-    const dateRule = SpreadsheetApp.newDataValidation().requireDate().setAllowInvalid(false).build();
+    // Date picker for Deadline column (European DD-MM-YYYY)
+    const dateRule = SpreadsheetApp.newDataValidation().requireDate().build();
     sheet.getRange(dataStartRow, 5, numRows).setDataValidation(dateRule);
     
     // Assignee dropdown (Batch)
@@ -142,6 +142,18 @@
 
     const me = Session.getEffectiveUser();
     applyAllProtectionsBatch(sheet, dataStartRow, numRows, me.getEmail());
+
+    // Flush all pending writes so the Sheets API resize sees final content
+    SpreadsheetApp.flush();
+
+    // Auto-fit columns via Sheets API batchUpdate (more reliable than SpreadsheetApp.autoResizeColumns)
+    const resizeSheetId = sheet.getSheetId();
+    const resizeRequests = [
+      { autoResizeDimensions: { dimensions: { sheetId: resizeSheetId, dimension: "COLUMNS", startIndex: 1, endIndex: 8 } } },
+      { updateDimensionProperties: { range: { sheetId: resizeSheetId, dimension: "COLUMNS", startIndex: 1, endIndex: 2 }, properties: { pixelSize: 350 }, fields: "pixelSize" } },
+      { updateDimensionProperties: { range: { sheetId: resizeSheetId, dimension: "COLUMNS", startIndex: 2, endIndex: 3 }, properties: { pixelSize: 200 }, fields: "pixelSize" } }
+    ];
+    Sheets.Spreadsheets.batchUpdate({ requests: resizeRequests }, ss.getId());
 
     ss.toast("Spreadsheet is ready. Status buttons will appear as you assign tasks.", "✅ Initialization Done", 5);
   }
@@ -323,34 +335,6 @@
         }
       });
     }
-
-    // Auto-resize columns B:H (indices 1-8) to fit content
-    requests.push({
-      autoResizeDimensions: {
-        dimensions: {
-          sheetId: sheetId,
-          dimension: "COLUMNS",
-          startIndex: 1,
-          endIndex: 8
-        }
-      }
-    });
-
-    // Enforce minimum widths: Task Name (col B) = 350px, Assignee (col C) = 200px
-    requests.push({
-      updateDimensionProperties: {
-        range: { sheetId: sheetId, dimension: "COLUMNS", startIndex: 1, endIndex: 2 },
-        properties: { pixelSize: 350 },
-        fields: "pixelSize"
-      }
-    });
-    requests.push({
-      updateDimensionProperties: {
-        range: { sheetId: sheetId, dimension: "COLUMNS", startIndex: 2, endIndex: 3 },
-        properties: { pixelSize: 200 },
-        fields: "pixelSize"
-      }
-    });
 
     Sheets.Spreadsheets.batchUpdate({ requests }, ssId);
   }
